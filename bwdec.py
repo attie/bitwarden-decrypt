@@ -6,7 +6,7 @@
 from bitwarden.util import load_json
 from bitwarden.session_key import SessionKey
 from bitwarden.user_key import UserKey
-from bitwarden.crypto import CryptoEngine
+from bitwarden.crypto_engine import CryptoEngine
 
 # ---
 

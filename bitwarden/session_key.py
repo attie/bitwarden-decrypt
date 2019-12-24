@@ -4,7 +4,7 @@ import hmac
 from hashlib import sha256
 from Crypto.Cipher import AES
 
-from .crypto import CryptoEngine
+from .crypto_engine import CryptoEngine
 from .cipher_string import cipher_string_from_protected_key
 
 # support handling the BitWarden CLI's session keys in the following format:
