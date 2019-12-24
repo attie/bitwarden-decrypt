@@ -4,7 +4,7 @@ from Crypto.Cipher import AES
 from hmac import new as hmac_new
 from hkdf import hkdf_expand
 
-from .cipher_string import CipherString
+from .cipher_string import cipher_string_from_str, CipherString
 
 # handles expanding and iterating the user's key into both the
 # encryption key and message authentication key
@@ -16,15 +16,19 @@ class CryptoEngine:
         self.key_enc, self.key_mac = self.decrypt_keys(encryption_key, user_key)
 
     @staticmethod
-    def decrypt_cipher_string(key_enc: bytes, key_mac: bytes, iv: bytes, mac: bytes, data: bytes) -> bytes:
+    def decrypt_cipher_string(key_enc: bytes, key_mac: bytes, cipher_string: CipherString) -> bytes:
+        # we only support enc_type == 2
+        # i.e: AesCbc256_HmacSha256_B64 (jslib/src/enums/encryptionType.ts)
+        assert(cipher_string.enc_type == 2)
+
         # verify the MAC
-        mac_data = iv + data
+        mac_data = cipher_string.iv + cipher_string.data
         r = hmac_new(key_mac, mac_data, sha256)
-        assert(mac == r.digest())
+        assert(cipher_string.mac == r.digest())
 
         # decrypt the content
-        c = AES.new(key_enc, AES.MODE_CBC, iv)
-        plaintext = c.decrypt(data)
+        c = AES.new(key_enc, AES.MODE_CBC, cipher_string.iv)
+        plaintext = c.decrypt(cipher_string.data)
 
         # remove PKCS#7 padding from payload, see RFC 5652
         # https://tools.ietf.org/html/rfc5652#section-6.3
@@ -37,12 +41,11 @@ class CryptoEngine:
     @classmethod
     def decrypt_generic(cls, key_enc: bytes, key_mac: bytes, cipher_string: Union[str, CipherString]) -> bytes:
         if isinstance(cipher_string, str):
-            cipher_string = CipherString(cipher_string)
+            cipher_string = cipher_string_from_str(cipher_string)
 
         assert(isinstance(cipher_string, CipherString))
-        assert(cipher_string.enc_type == 2)
 
-        plaintext = cls.decrypt_cipher_string(key_enc, key_mac, cipher_string.iv, cipher_string.mac, cipher_string.data)
+        plaintext = cls.decrypt_cipher_string(key_enc, key_mac, cipher_string)
         return plaintext
     
     @classmethod
