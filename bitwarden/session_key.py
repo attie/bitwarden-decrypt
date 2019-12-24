@@ -47,7 +47,7 @@ class SessionKey:
     def decrypt_session_keys(self) -> bytes:
         assert(self.enc_type == 2)
 
-        user_key = CryptoEngine.decrypt3(self.encryption_key, self.mac_key, self.iv, self.mac, self.data)
+        user_key = CryptoEngine.decrypt_cipher_string(self.encryption_key, self.mac_key, self.iv, self.mac, self.data)
         assert(len(user_key) == 32)
 
         return user_key

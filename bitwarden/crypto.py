@@ -16,7 +16,7 @@ class CryptoEngine:
         self.key_enc, self.key_mac = self.decrypt_keys(encryption_key, user_key)
 
     @staticmethod
-    def decrypt3(key_enc: bytes, key_mac: bytes, iv: bytes, mac: bytes, data: bytes) -> bytes:
+    def decrypt_cipher_string(key_enc: bytes, key_mac: bytes, iv: bytes, mac: bytes, data: bytes) -> bytes:
         # verify the MAC
         mac_data = iv + data
         r = hmac_new(key_mac, mac_data, sha256)
@@ -35,14 +35,14 @@ class CryptoEngine:
         return plaintext
 
     @classmethod
-    def decrypt2(cls, cipher_string: Union[str, CipherString], key_enc: bytes, key_mac: bytes) -> bytes:
+    def decrypt_generic(cls, key_enc: bytes, key_mac: bytes, cipher_string: Union[str, CipherString]) -> bytes:
         if isinstance(cipher_string, str):
             cipher_string = CipherString(cipher_string)
 
         assert(isinstance(cipher_string, CipherString))
         assert(cipher_string.enc_type == 2)
 
-        plaintext = cls.decrypt3(key_enc, key_mac, cipher_string.iv, cipher_string.mac, cipher_string.data)
+        plaintext = cls.decrypt_cipher_string(key_enc, key_mac, cipher_string.iv, cipher_string.mac, cipher_string.data)
         return plaintext
     
     @classmethod
@@ -51,7 +51,7 @@ class CryptoEngine:
         tmp_key_enc = hkdf_expand(encryption_key, b'enc', 32, sha256)
         tmp_key_mac = hkdf_expand(encryption_key, b'mac', 32, sha256)
 
-        plaintext = cls.decrypt2(user_key, tmp_key_enc, tmp_key_mac)
+        plaintext = cls.decrypt_generic(tmp_key_enc, tmp_key_mac, user_key)
         assert(len(plaintext) == 64)
 
         # split out the real keys
@@ -61,4 +61,4 @@ class CryptoEngine:
         return key_enc, key_mac
 
     def decrypt(self, cipher_string: Union[str, CipherString]) -> bytes:
-        return self.decrypt2(cipher_string, self.key_enc, self.key_mac)
+        return self.decrypt_generic(self.key_enc, self.key_mac, cipher_string)
