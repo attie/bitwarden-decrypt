@@ -6,15 +6,15 @@ from hkdf import hkdf_expand
 
 from .cipher_string import cipher_string_from_str, CipherString
 
-# handles expanding and iterating the user's key into both the
-# encryption key and message authentication key
-# once setup, the class supports decrypting BitWarden 'CipherString'
-# data, either presented as a str, or a CipherString
+# handles expanding and iterating the user's key into both the encryption key
+# and message authentication key... once setup, the class supports decrypting
+# BitWarden 'CipherString' data, either presented as a str, or a CipherString
 
 class CryptoEngine:
     def __init__(self, encryption_key: bytes, user_key: Union[str, CipherString]):
         self.key_enc, self.key_mac = self.decrypt_keys(encryption_key, user_key)
 
+    # NOTE: this is also used by SessionKey.decrypt_session_keys()
     @staticmethod
     def decrypt_cipher_string(key_enc: bytes, key_mac: bytes, cipher_string: CipherString) -> bytes:
         # we only support enc_type == 2
@@ -54,6 +54,7 @@ class CryptoEngine:
         tmp_key_enc = hkdf_expand(encryption_key, b'enc', 32, sha256)
         tmp_key_mac = hkdf_expand(encryption_key, b'mac', 32, sha256)
 
+        # 'decrypt' the user_key to produce the actual keys
         plaintext = cls.decrypt_generic(tmp_key_enc, tmp_key_mac, user_key)
         assert(len(plaintext) == 64)
 
