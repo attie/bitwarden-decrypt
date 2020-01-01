@@ -143,7 +143,7 @@ Finally, to decrypt a secret, use the appropriate encryption key, along with the
 
 ## Summary
 
-I have produced a python library to aid in decrypting Bitwarden secrets.
+I have produced a python library to aid in decrypting Bitwarden secrets, available on [GitHub](https://github.com/attie/bitwarden-decrypt).
 
 An example utility to decrypt the name of the first entry is given below:
 
