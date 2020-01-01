@@ -61,6 +61,7 @@ Before we can go any further, we must produce two keys - the "_Encryption Key_",
     This isn't a problem in itself, though does open the possibility for mis-handling data when passing things around the application.
     It took me quite some time to produce a functional model of the procedure, and this wasn't helped by the naming scheme...
     There are a number of "_keys_" coming up, and they do not have clear / unambiguous names in the Bitwarden sources.
+    My first attempt to do this a few months ago failed, largely due to this.
     I'll try to keep them clear here.
 
 This write up doesn't cover generating and encrypting the keys to begin with, but does outline the steps required to re-produce the keys.
