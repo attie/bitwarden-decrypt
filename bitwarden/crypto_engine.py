@@ -32,9 +32,10 @@ class CryptoEngine:
 
         # remove PKCS#7 padding from payload, see RFC 5652
         # https://tools.ietf.org/html/rfc5652#section-6.3
-        padding = bytes([ plaintext[-1] ] * plaintext[-1])
-        if plaintext[-len(padding):] == padding:
-            plaintext = plaintext[:-len(padding)]
+        pad_len = plaintext[-1]
+        padding = bytes([ pad_len ] * pad_len)
+        if plaintext[-pad_len:] == padding:
+            plaintext = plaintext[:-pad_len]
 
         return plaintext
 
